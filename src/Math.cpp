@@ -79,7 +79,7 @@ bool colinearity(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3) {
 }
 
 void RandomSampling(int m, int N, vector<int> &samples) {
-  samples.reserve(m);
+  samples.resize(m);
   random_device rd;
   mt19937 randomGenerator(rd());
   // too slow

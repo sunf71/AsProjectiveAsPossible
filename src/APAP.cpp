@@ -1,5 +1,5 @@
 #include "APAP.h"
-
+#include <Windows.h>
 using namespace cv;
 using namespace Eigen;
 using namespace std;
@@ -134,7 +134,7 @@ void warpAndFuseImageAPAP(const Mat &img1, const Mat &img2, const MatrixXf &H, i
       for (yindex = 0; (yindex+1) < Y.rows() && i>= Y[yindex]; yindex++);
 
       int Hindex = yindex*Y.rows()+xindex;
-      int Hindex = 0;
+      //int Hindex = 0;
       float div = ((j-offX)*H(Hindex, 6)+(i-offY)*H(Hindex, 7)+H(Hindex, 8));
       float x = ((j-offX)*H(Hindex, 0) + (i-offY)*H(Hindex, 1)+H(Hindex, 2))/div;
       float y = ((j-offX)*H(Hindex, 3) + (i-offY)*H(Hindex, 4)+H(Hindex, 5))/div;
@@ -176,13 +176,13 @@ int GlobalHomography(const char *img1_path, const char *img2_path, MatrixXf &inl
   MatrixXf match;
 
   //detectSiftMatchWithSiftGPU(img1_path, img2_path, match);
-  //detectSiftMatchWithOpenCV(img1_path, img2_path, match);
-  detectSiftMatchWithVLFeat(img1_path, img2_path, match);
+  detectSiftMatchWithOpenCV(img1_path, img2_path, match);
+  //detectSiftMatchWithVLFeat(img1_path, img2_path, match);
 
   normalizeMatch(match, T1, T2);
 
-  singleModelRANSAC(match, 500, inlier);
-  //multiModelRANSAC(match, 500, inlier);
+ singleModelRANSAC(match, 500, inlier);
+   //multiModelRANSAC(match, 500, inlier);
   cout << "inlier: " << inlier.rows() << endl;
 
   Matrix3f H;
@@ -202,6 +202,8 @@ int GlobalHomography(const char *img1_path, const char *img2_path, MatrixXf &inl
   Matrix3f Hg = T2.inverse()*H*T1;
 
   warpAndFuseImage(img1, img2, Hg, offX, offY, cw, ch);
+
+  return 1;
 }
 
 void APAP(const MatrixXf &inlier, const MatrixXf &A, const Matrix3f &T1, const Matrix3f &T2, int offX, int offY, int cw, int ch, const Mat &img1, const Mat &img2) {
@@ -256,8 +258,9 @@ int main() {
   Matrix3f T1, T2;
   Mat img1, img2;
   int offX, offY, cw, ch;
-  const char* img1_path = "/home/xinsun/Code/APAP_C/image/set2/u_7_25.jpg";
-  const char* img2_path = "/home/xinsun/Code/APAP_C/image/set2/u_8_25.jpg";
+ 
+  const char* img1_path = "./images/cars1/in000001.jpg";
+  const char* img2_path = "./images/cars1/in000002.jpg";
   //const char* img1_path = "/home/xinsun/Code/RedsunImg/0/u_3_25.jpg";
   //const char* img2_path = "/home/xinsun/Code/RedsunImg/0/u_4_25.jpg";
   displayResult = true;
