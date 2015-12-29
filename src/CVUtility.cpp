@@ -77,3 +77,60 @@ void detectSiftMatchWithOpenCV(const char* img1_path, const char* img2_path, Mat
   }
   
 }
+
+void KLTFeaturesMatching(const cv::Mat& simg, const cv::Mat& timg, std::vector<cv::Point2f>& vf1, std::vector<cv::Point2f>& vf2, int cornerCount, float quality, float minDist)
+{
+	vf1.clear();
+	vf2.clear();
+	std::vector<uchar>status;
+	std::vector<float> err;
+	cv::Mat sGray, tGray;
+	if (simg.channels() == 3)
+		cv::cvtColor(simg, sGray, CV_BGR2GRAY);
+	else
+		sGray = simg;
+	if (timg.channels() == 3)
+		cv::cvtColor(timg, tGray, CV_BGR2GRAY);
+	else
+		tGray = timg;
+	cv::goodFeaturesToTrack(sGray, vf1, cornerCount, quality, minDist);
+	cv::calcOpticalFlowPyrLK(sGray, tGray, vf1, vf2, status, err);
+	int k = 0;
+	for (int i = 0; i<vf1.size(); i++)
+	{
+		if (status[i] == 1)
+		{
+			vf1[k] = vf1[i];
+			vf2[k] = vf2[i];
+			k++;
+		}
+	}
+
+	vf1.resize(k);
+	vf2.resize(k);
+	//FeaturePointsRefineHistogram(vf1,vf2);
+}
+
+
+void detectKLTMatch(const char* img1_path, const char* img2_path, Eigen::MatrixXf &match)
+{
+	Mat img1 = imread(img1_path);
+	Mat img2 = imread(img2_path);
+	if (img1.channels() == 3)
+	{
+		cvtColor(img1, img1, CV_BGR2GRAY);
+		cvtColor(img2, img2, CV_BGR2GRAY);
+	}
+	vector<Point2f> f1, f2;
+	KLTFeaturesMatching(img1, img2, f1, f2, 500);
+
+	match.resize(f1.size(), 6);
+	for (int i = 0; i < f1.size(); i++) {
+		match(i, 0) = f1[i].x;
+		match(i, 1) = f1[i].y;
+		match(i, 2) = 1;
+		match(i, 3) = f2[i].x;
+		match(i, 4) = f2[i].y;
+		match(i, 5) = 1;
+	}
+}

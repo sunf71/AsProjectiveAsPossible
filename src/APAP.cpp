@@ -178,10 +178,10 @@ int GlobalHomography(const char *img1_path, const char *img2_path, MatrixXf &inl
   //detectSiftMatchWithSiftGPU(img1_path, img2_path, match);
   detectSiftMatchWithOpenCV(img1_path, img2_path, match);
   //detectSiftMatchWithVLFeat(img1_path, img2_path, match);
-
+  //detectKLTMatch(img1_path, img2_path, match);
   normalizeMatch(match, T1, T2);
-
- singleModelRANSAC(match, 500, inlier);
+  
+  singleModelRANSAC(match, 500, inlier);
    //multiModelRANSAC(match, 500, inlier);
   cout << "inlier: " << inlier.rows() << endl;
 
@@ -259,8 +259,8 @@ int main() {
   Mat img1, img2;
   int offX, offY, cw, ch;
  
-  const char* img1_path = "./images/cars1/in000001.jpg";
-  const char* img2_path = "./images/cars1/in000002.jpg";
+  const char* img1_path = "../image/cars1/in000001.jpg";
+  const char* img2_path = "../image/cars1/in000002.jpg";
   //const char* img1_path = "/home/xinsun/Code/RedsunImg/0/u_3_25.jpg";
   //const char* img2_path = "/home/xinsun/Code/RedsunImg/0/u_4_25.jpg";
   displayResult = true;
